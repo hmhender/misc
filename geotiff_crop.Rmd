@@ -1,0 +1,42 @@
+---
+title: "geotiff_crop_script"
+author: "HH"
+date: "11/20/2021"
+output: html_document
+---
+
+```{r}
+#for cropping cyanobacterial index images, or any geotif.
+
+#install.packages("raster")  # For extent(), xmin(), ymax(), et al.
+#install.packages("gdalUtils") # For transformation
+
+library(raster)   
+library(gdalUtils)
+
+#change directory for wherever your tif is saved. 
+in_tif <- raster("C:/Users/haydenmh.UMROOT/OneDrive - Umich/Desktop/072621 CI.tif")
+plot(in_tif)
+
+#desired extents in xmin, xmax, ymin, ymax in decimal degrees
+ext <- extent(-83.46,-83.08,41.67,41.89)
+
+#spatial polygons is reference from rgdal package
+CI_crop <- as(ext,'SpatialPolygons')
+
+#defines datum and allows go-between for cartesian coords and raster coords
+proj4string(CI_crop) <- "+proj=longlat +datum=WGS84 +no_defs"
+CI_crop <- spTransform(CI_crop,proj4string(in_tif))
+
+#change this object to whatever name you want you output as 
+CI_072621_crop <- crop(in_tif,CI_crop)
+
+plot(CI_072621_crop)
+
+writeRaster(CI_072621_crop,"CI_072621_crop.tif", format="GTiff",overwrite=TRUE)
+```
+
+
+
+
+
